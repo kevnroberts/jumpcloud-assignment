@@ -1,6 +1,6 @@
 import React from 'react';
-import Form from 'react-bootstrap/Form'
-import Col from 'react-bootstrap/Col'
+import Form from 'react-bootstrap/Form';
+import Col from 'react-bootstrap/Col';
 
 export const SystemUserEditForm = ({
     systemUser,
@@ -15,12 +15,12 @@ export const SystemUserEditForm = ({
         username,
         displayname,
         description,
-    } = systemUser;
+    } = systemUser || {};
 
     const onChange = field => (event => onChangeFormControl(field, event.target.value));
 
     return (
-        <Form>
+        <>
             <h3>User Information</h3>
             <Form.Row>
                 <Col>
@@ -46,7 +46,13 @@ export const SystemUserEditForm = ({
                 <Col>
                     <Form.Group controlId="username">
                         <Form.Label>* Userame</Form.Label>
-                        <Form.Control type="text" value={username} onChange={onChange('username')} />
+                        <Form.Control
+                            onChange={onChange('username')}
+                            required
+                            type="text"
+                            value={username}
+                        />
+                        <Form.Control.Feedback type="invalid">* Username is required.</Form.Control.Feedback>
                     </Form.Group>
                 </Col>
                 <Col>
@@ -66,7 +72,13 @@ export const SystemUserEditForm = ({
                 <Col>
                     <Form.Group controlId="company-email">
                         <Form.Label>* Company Email</Form.Label>
-                        <Form.Control type="text" value={email} onChange={onChange('email')} />
+                        <Form.Control
+                            onChange={onChange('email')}
+                            required
+                            type="email"
+                            value={email}
+                        />
+                        <Form.Control.Feedback type="invalid">* Please enter a valid email address.</Form.Control.Feedback>
                     </Form.Group>
                 </Col>
                 <Col></Col>
@@ -79,7 +91,7 @@ export const SystemUserEditForm = ({
                     </Form.Group>
                 </Col>
             </Form.Row>
-        </Form>
+        </>
     );
 }
 

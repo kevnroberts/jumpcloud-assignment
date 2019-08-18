@@ -1,9 +1,8 @@
 import React from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
-import Spinner from 'react-bootstrap/Spinner';
 
-export const DeleteUser = ({
+export const DeleteUserModal = ({
     deleteUser,
     onConfirmDelete,
     onCancelDelete,
@@ -38,4 +37,4 @@ export const DeleteUser = ({
     );
 }
 
-export default DeleteUser;
+export default DeleteUserModal;

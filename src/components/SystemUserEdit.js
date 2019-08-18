@@ -1,65 +1,44 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form'
 import Modal from 'react-bootstrap/Modal';
 import Spinner from 'react-bootstrap/Spinner';
-import { getSystemUser, updateSystemUser } from '../api/api';
 import SystemUserEditForm from './SystemUserEditForm';
 
-const propTypes = {
-    id: PropTypes.string,
-    onCloseModal: PropTypes.func,
-};
-
-const defaultProps = {
-    id: '',
-    onCloseModal: () => {},
-};
 
 export class SystemUserEdit extends React.PureComponent {
     constructor(props) {
         super(props);
 
         this.state = {
-            showModal: false,
-            systemUser: null,
+            systemUser: {},
             isClosingModal: false,
             isSaving: false,
+            isValidated: false,
         };
-
-        this.getUserData();
     }
 
     componentDidUpdate() {
-        const { id } = this.props;
-        const { isClosingModal = false, showModal = false } = this.state;
+        const { editUser, show } = this.props;
+        if (editUser) {
+            this.setState({ systemUser: editUser});
+        }
 
-        if (!showModal && !isClosingModal && id) {
-            this.getUserData();
+        if (!show) {
+            this.setState({ isSaving: false });
         }
     }
 
-    getUserData = () => {
-        const { id } = this.props;
-        getSystemUser(id).then(response => {
-            this.setState({
-                systemUser: response,
-                showModal: true,
-            });
-        });
-    }
+    getTitle = systemUser => {
+        if (systemUser) {
+            const { firstname, lastname, username } = systemUser;
+            if (firstname && lastname) {
+                return `${firstname} ${lastname}`;
+            }
+            return username;
+        }
 
-    closeModal = () => {
-        this.setState({ showModal: false, isClosingModal: true });
-    }
-
-    updateUser = () => {
-        const { systemUser } = this.state;
-        this.setState({ isSaving : true });
-        updateSystemUser(systemUser).then(response => {
-            this.setState({ isSaving: false });
-            this.closeModal();
-        })
+        return 'New User';
     }
 
     onChangeFormControl = (field, value) => {
@@ -68,52 +47,80 @@ export class SystemUserEdit extends React.PureComponent {
         this.setState({ systemUser: {...systemUser} });
     }
 
+    onCloseModal = () => {
+        this.setState({ isValidated: false });
+        this.props.onCloseModal();
+    }
+
+    onFormSubmit = event => {
+        const form = event.currentTarget;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (form.checkValidity()) {
+            const { systemUser } = this.state;
+            this.setState({ isSaving : true });
+            this.props.onSaveEditUser(systemUser).then(() => {
+                this.setState({
+                    isValidated: false,
+                    systemUser: null,
+                });
+            });
+        }
+
+        this.setState({ isValidated: true });
+    }
+
     render() {
-        const { onCloseModal } = this.props;
-        const { systemUser, showModal, isSaving } = this.state;
-        const { firstname, lastname } = systemUser || {};
+        const { show } = this.props;
+        const { systemUser, isSaving, isValidated } = this.state;
+        const title = this.getTitle(systemUser);
+
         return (
             <Modal
                 animation
                 autoFocus
                 backdrop="static"
                 centered
-                show={showModal}
+                show={show}
                 size="xl"
-                onHide={this.closeModal}
-                onExited={onCloseModal}
+                onHide={this.onCloseModal}
             >
                 <Modal.Header closeButton>
-                    <Modal.Title>{firstname} {lastname}</Modal.Title>
+                    <Modal.Title>{title}</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
-                    <SystemUserEditForm systemUser={systemUser} onChangeFormControl={this.onChangeFormControl} />
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={this.closeModal}>Cancel</Button>
-                    <Button variant="primary" onClick={this.updateUser}>
-                        {isSaving ? (
-                            <>
-                                <Spinner
-                                    as="span"
-                                    animation="border"
-                                    size="sm"
-                                    role="statue"
-                                    aria-hidden="true"
-                                />
-                                <span className="sr-only">Saving...</span>
-                            </>
-                        ) : null}
-                        Save
-                    </Button>
-                </Modal.Footer>
+                <Form noValidate onSubmit={this.onFormSubmit} validated={isValidated}>
+                    <Modal.Body>
+                        <SystemUserEditForm
+                            systemUser={systemUser}
+                            onChangeFormControl={this.onChangeFormControl}
+                        />
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={this.onCloseModal}>Cancel</Button>
+                        <Button variant="primary" type="submit">
+                            {isSaving ? (
+                                <>
+                                    <Spinner
+                                        as="span"
+                                        animation="border"
+                                        size="sm"
+                                        role="statue"
+                                        aria-hidden="true"
+                                    />
+                                    <span className="sr-only">Saving...</span>
+                                </>
+                            ) : null}
+                            Save
+                        </Button>
+                    </Modal.Footer>
+                </Form>
             </Modal>
         );
     }
 }
 
-SystemUserEdit.propTypes = propTypes;
-SystemUserEdit.defaultProps = defaultProps;
 SystemUserEdit.displayName = 'SystemUserEdit';
 
 export default SystemUserEdit;

@@ -1,0 +1,19 @@
+.SystemUserListItem:hover {
+    cursor: pointer;
+}
+
+.SystemUserListItem-name {
+    font-weight: 700;
+}
+
+.SystemUserListItem-delete {
+    text-align: center;
+}
+
+.SystemUserListItem-delete:hover {
+    cursor: default;
+}
+
+.SystemUserListItem-delete button:hover {
+    cursor: pointer;
+}

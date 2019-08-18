@@ -1,49 +1,37 @@
 import React from 'react';
 import Table from 'react-bootstrap/Table'
-import { getSystemUserList, deleteSystemUser } from '../api/api';
 import DeleteUserModal from './DeleteUserModal';
-import SystemUser from './SystemUser';
+import ListPagination from './ListPagination';
+import SystemUserListItem from './SystemUserListItem';
 import SystemUserEdit from './SystemUserEdit';
 
 export class SystemUserList extends React.PureComponent {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
 
         this.state = {
-            systemUserCount: 0,
-            systemUserList: [],
+            showUserEdit: false,
             showDeleteWarning: false,
         };
-
-        this.getUserList();
-    }
-
-    getUserList = () => {
-        getSystemUserList().then(response => {
-            const { totalCount, results } = response;
-            this.setState({
-                systemUserCount: totalCount,
-                systemUserList: results,
-            });
-        });
     }
 
     onCloseDeleteWarning = () => {
         this.setState({
+            deleteUser: null,
             showDeleteWarning: false,
-            deleteUser: null
         });
     }
 
     onCloseEdit = () => {
-        this.setState({ selectedUserId: null });
+        this.setState({
+            editUser: null,
+            showUserEdit: false,
+        });
     }
 
     onConfirmDelete = id => {
         this.onCloseDeleteWarning();
-        deleteSystemUser(id).then(() => {
-            this.getUserList();
-        });
+        this.props.onDeleteSystemUser(id);
     }
 
     onDeleteUser = user => {
@@ -53,29 +41,43 @@ export class SystemUserList extends React.PureComponent {
         });
     }
 
+    onSaveEditUser = user => {
+        return this.props.onUpdateSystemUser(user).then(() => {
+            this.setState({ showUserEdit: false });
+        });
+    }
+
     onSelectUser = (event, id) => {
         const { target } = event || {};
         const { textContent, tagName } = target || {};
         if (tagName !== 'BUTTON' && textContent !== 'Delete') {
-            this.setState({ selectedUserId: id });
+            this.props.onGetSystemUser(id).then(() => {
+                this.setState({ showUserEdit: true });
+            });
         }
     }
 
     render() {
         const {
-            selectedUserId,
+            deleteUser = {},
+            showDeleteWarning,
+            showUserEdit,
+        } = this.state;
+        const {
+            currentPage,
+            onChangePage,
+            pageSize,
+            selectedUser = {},
             systemUserCount,
             systemUserList,
-            showDeleteWarning,
-            deleteUser = {},
-        } = this.state;
+        } = this.props;
+
         return (
             <div className="SystemUserList">
                 <div className="SystemUserList-count">Total Users: {systemUserCount}</div>
                 <Table striped bordered hover size="sm">
                     <thead>
                         <tr>
-                            <th></th>
                             <th>Name</th>
                             <th>Email</th>
                             <th>Created Date</th>
@@ -83,17 +85,30 @@ export class SystemUserList extends React.PureComponent {
                         </tr>
                     </thead>
                     <tbody>
-                        {systemUserList.map(systemUser => (
-                            <SystemUser
-                                systemUser={systemUser}
-                                onSelectUser={event => { this.onSelectUser(event, systemUser.id) }}
-                                key={systemUser.id}
-                                onDeleteUser={() => { this.onDeleteUser(systemUser) }}
-                            />
-                        ))}
+                        {Array.isArray(systemUserList) ? (
+                            systemUserList.map(systemUser => (
+                                <SystemUserListItem
+                                    systemUser={systemUser}
+                                    onSelectUser={event => { this.onSelectUser(event, systemUser.id) }}
+                                    key={systemUser.id}
+                                    onDeleteUser={() => { this.onDeleteUser(systemUser) }}
+                                />
+                            ))
+                        ) : null}
                     </tbody>
                 </Table>
-                {selectedUserId ? (<SystemUserEdit id={selectedUserId} onCloseModal={this.onCloseEdit} />) : null}
+                <ListPagination
+                    systemUserCount={systemUserCount}
+                    pageSize={pageSize}
+                    currentPage={currentPage}
+                    onChangePage={onChangePage}
+                />
+                <SystemUserEdit
+                    editUser={selectedUser}
+                    onCloseModal={this.onCloseEdit}
+                    onSaveEditUser={this.onSaveEditUser}
+                    show={showUserEdit}
+                />
                 <DeleteUserModal
                     deleteUser={deleteUser}
                     onConfirmDelete={() => this.onConfirmDelete(deleteUser.id)}
@@ -104,7 +119,6 @@ export class SystemUserList extends React.PureComponent {
         );
     }
 }
-
 
 SystemUserList.displayName = 'SystemUserList';
 

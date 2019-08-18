@@ -18,8 +18,10 @@ const apiFetch = ({
     .catch(err => console.error(err));
 };
 
-export const getSystemUserList = () => {
-    return apiFetch();
+export const getSystemUserList = (page, pageSize) => {
+    const skip = pageSize * (page - 1);
+    const resource = `${BASE_URL}?fields=created email firstname id lastname username&limit=${pageSize}&skip=${skip}`;
+    return apiFetch({ resource });
 };
 
 export const getSystemUser = id => {
@@ -29,7 +31,7 @@ export const getSystemUser = id => {
 export const createSystemUser = systemUser => {
     return apiFetch({
         method: 'POST',
-        body: systemUser,
+        body: JSON.stringify(systemUser),
     });
 };
 
