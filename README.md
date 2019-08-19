@@ -25,7 +25,7 @@ NOTE: This project assumes the API is in the following location:
 ```
 http://localhost:8005/api/systemusers
 ```
-To change this, edit the first line in [api/api.js](./api.api.js):
+To change this, edit the first line in [api/api.js](./api/api.js):
 ```
 const BASE_URL = 'http://localhost:8005/api/systemusers'; // change this value to whatever you need.
 ```
