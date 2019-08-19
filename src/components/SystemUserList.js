@@ -68,7 +68,7 @@ export class SystemUserList extends React.PureComponent {
             onChangePage,
             pageSize,
             selectedUser = {},
-            systemUserCount,
+            systemUserCount = 0,
             systemUserList,
         } = this.props;
 

@@ -26,7 +26,7 @@ export const DeleteUserModal = ({
                 <Modal.Title>Delete {firstname} {lastname}?</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <p>Are you sure you would like to delete <span className="">{firstname} {lastname} ({username})?</span></p>
+                <p>Are you sure you would like to delete <span className="DeleteUserModal-name">{firstname} {lastname} ({username})?</span></p>
                 <p>Deletion will permanently remove all User data and associations. This action may not be undone.</p>
             </Modal.Body>
             <Modal.Footer>

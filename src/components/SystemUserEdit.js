@@ -5,7 +5,6 @@ import Modal from 'react-bootstrap/Modal';
 import Spinner from 'react-bootstrap/Spinner';
 import SystemUserEditForm from './SystemUserEditForm';
 
-
 export class SystemUserEdit extends React.PureComponent {
     constructor(props) {
         super(props);

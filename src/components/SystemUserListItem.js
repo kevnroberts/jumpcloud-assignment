@@ -9,7 +9,7 @@ export const SystemUserListItem = ({ systemUser, onSelectUser, onDeleteUser }) =
         firstname,
         lastname,
         username,
-    } = systemUser;
+    } = systemUser || {};
     const createdDate = created ? new Date(created).toLocaleString() : '';
     const name = firstname && lastname ? (
         <><span className="SystemUserListItem-name">{firstname} {lastname}</span> {username}</>
